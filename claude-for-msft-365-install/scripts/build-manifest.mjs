@@ -62,8 +62,10 @@ const KEYS = {
     hint: "your Entra app registration's Application (client) ID — overrides the default multi-tenant app",
   },
   entra_scope: {
-    pattern: /^(api|https):\/\/\S+\/[\w.-]+$/i,
-    hint: "scope URI for your Entra-protected API, e.g. api://<your-app-guid>/.default — requires graph_client_id",
+    // Any non-blank string — Entra validates scope syntax, not us. May be a comma- or
+    // whitespace-separated list (the add-in splits it); requires graph_client_id (enforced below).
+    pattern: /\S/,
+    hint: "scope(s) for your Entra-protected API, e.g. api://<your-app-guid>/.default — comma/space-separated list allowed, requires graph_client_id",
   },
   allow_1p: {
     pattern: /^[01]$/,

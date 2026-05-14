@@ -139,6 +139,25 @@ broker maps any unclassifiable close to that).
 
 ---
 
+## Silent SSO / Entra token failures
+
+- **`AADSTS50194: …not configured as a multi-tenant application` /
+  `Use a tenant-specific endpoint`** — your `graph_client_id` (or the
+  `entra_scope` resource app) is a single-tenant app, and the add-in build is
+  old enough to still request tokens against the `/common` authority. Newer
+  builds resolve a tenant-specific authority automatically when
+  `graph_client_id` is set. Fix: have users update to the latest add-in
+  version. There is no manifest workaround on an old build.
+- **`entra_scope requires graph_client_id`** — `entra_scope` was set without
+  `graph_client_id`. Custom-scope access tokens must be issued by your own
+  Entra app, not the default; set both. The build script also rejects this
+  pairing.
+- **Silent SSO fails, then an interactive popup works** — expected on first
+  run before a service principal exists in the tenant. Once admin consent is
+  granted (see above) the silent path succeeds.
+
+---
+
 ## Opening browser devtools on the add-in
 
 When you need the WebView's console — JS errors, network tab, the add-in's

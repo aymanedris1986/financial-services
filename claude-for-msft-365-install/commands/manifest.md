@@ -82,10 +82,20 @@ it, then grant admin consent for the tenant. In the app manifest, set
 leave it unset and you get v1.0 tokens, which your validator may reject.
 `/.default` (requests all consented scopes) also works.
 
-`entra_scope` requires `graph_client_id` — the build script enforces this. Both
-are manifest-only: the add-in needs them to initialize NAA *before* it can read
-extension attrs or call your bootstrap endpoint, so neither can arrive through
-those layers. Leave `entra_scope` unset and the ID token is sent.
+**Multiple scopes.** `entra_scope` accepts a comma- or whitespace-separated
+list — `entra_scope=api://<guid>/use_llm,api://<guid>/admin`. All scopes must
+target the **same resource**: one access token has one `aud`, so MSAL cannot
+mint a token spanning two APIs (`api://torii/x,api://other/y` will fail or
+silently honor only one). The Bearer's `scp` claim is the space-joined list.
+If you need every consented scope, prefer `/.default` over enumerating them.
+
+`entra_scope` requires `graph_client_id` — the build script enforces *that
+pairing* but not the scope string itself: any non-blank value is accepted and
+Entra validates the syntax at sign-in (a malformed scope surfaces as an
+`AADSTS` error, not a build failure). Both keys are manifest-only: the add-in
+needs them to initialize NAA *before* it can read extension attrs or call your
+bootstrap endpoint, so neither can arrive through those layers. Leave
+`entra_scope` unset and the ID token is sent.
 
 ## Bootstrap endpoint
 
