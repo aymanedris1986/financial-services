@@ -16,6 +16,7 @@ Ask the admin to describe the symptom. Route by answer:
 | Updated the manifest but users still see old config | [Stale config after update](#stale-config-after-update) |
 | Add-in shows "Connection failed" | [Read the error paste](#read-the-error-paste) |
 | Add-in doesn't appear in Excel/PowerPoint at all | [Add-in not visible](#add-in-not-visible) |
+| Want to test/iterate a manifest locally before deploying | [Sideload a manifest for local debugging](#sideload-a-manifest-for-local-debugging) |
 | Sign-in popup fails or loops | [Admin consent](#admin-consent) |
 | Need to see the browser console | [Opening browser devtools](#opening-browser-devtools-on-the-add-in) |
 
@@ -126,6 +127,92 @@ faster). Edit `manifest.xml`, replace the text inside `<Id>` with a new UUID
   `<VersionOverrides>`).
 - **Fresh deploy, been <24h:** Normal. Microsoft's SLA is 24h for first-time
   deployment visibility.
+
+---
+
+## Sideload a manifest for local debugging
+
+For iterating on a manifest **without going through Admin Center deployment**
+(no 24–72h cache wait), point Office at a local manifest file directly. The
+manifest stays wherever it is on disk; you just tell Office where to find it.
+Pick the recipe for the customer's OS.
+
+### Windows (Wef Developer registry key)
+
+The standard manual sideload — a registry value under the `Wef\Developer`
+key whose name is the add-in ID and whose data is the manifest path.
+
+Give the customer this (they replace the path with their own):
+
+```powershell
+$manifestPath = (Resolve-Path "C:\path\to\manifest.xml").Path
+$addinId = ([xml](Get-Content $manifestPath)).OfficeApp.Id
+$wefKey  = "HKCU:\SOFTWARE\Microsoft\Office\16.0\Wef\Developer"
+New-Item -Path $wefKey -Force | Out-Null
+New-ItemProperty -Path $wefKey -Name $addinId -Value $manifestPath -PropertyType String -Force | Out-Null
+```
+
+What this does:
+1. Reads the add-in ID from the manifest's `<Id>` element (`OfficeApp.Id`).
+2. Creates a `String` value under
+   `HKCU:\SOFTWARE\Microsoft\Office\16.0\Wef\Developer` whose **name** is that
+   add-in ID and whose **data** is the full path to the manifest file.
+
+Then **fully close and reopen** Excel / Word / PowerPoint — check Task Manager
+for lingering processes first (a backgrounded app won't re-read the registry).
+The add-in appears on the **Home** tab, or under **Insert → My Add-ins →
+Shared Folder**.
+
+To stop sideloading, remove the value (or delete the manifest it points at):
+
+```powershell
+Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Office\16.0\Wef\Developer" -Name $addinId
+```
+
+### macOS (wef folder)
+
+No registry on macOS — instead drop the manifest into the per-app `wef`
+folder. The folder is per-app, so copy into each app you want to test.
+
+Give the customer this (they replace the path with their own):
+
+```bash
+MANIFEST="$HOME/path/to/manifest.xml"
+for app in Excel Word Powerpoint; do
+  dest="$HOME/Library/Containers/com.microsoft.$app/Data/Documents/wef"
+  mkdir -p "$dest"
+  cp "$MANIFEST" "$dest/"
+done
+```
+
+(`Powerpoint` is the correct container name — lowercase second `p`. Outlook is
+`com.microsoft.Outlook`.)
+
+Then **fully quit and reopen** the app — `pkill -f "Microsoft Excel"` (etc.)
+to be sure no process lingers, since a backgrounded app won't rescan the
+folder. The add-in appears under **Insert → My Add-ins** (look under the
+**Developer Add-ins** / shared-folder group), then pin it.
+
+To stop sideloading, delete the copied manifest from each `wef` folder:
+
+```bash
+rm -f "$HOME/Library/Containers/com.microsoft.Excel/Data/Documents/wef/manifest.xml"
+```
+
+**Notes (both platforms):**
+- This is per-user and per-machine — it doesn't touch tenant deployment. It's
+  purely for the customer to debug/iterate on their own box.
+- A locally sideloaded manifest **wins over** a centrally deployed one with
+  the same `<Id>`, so this is also a fast way to test a manifest fix before
+  re-uploading to Admin Center.
+- Pair this with [browser devtools](#opening-browser-devtools-on-the-add-in)
+  to see console/network while iterating.
+- If a stale copy keeps loading, also clear the cache — see
+  [Force a client-side refresh](#force-a-client-side-refresh).
+
+Microsoft's sideloading references:
+- Windows: https://learn.microsoft.com/en-us/office/dev/add-ins/testing/create-a-network-shared-folder-catalog-for-task-pane-and-content-add-ins
+- macOS: https://learn.microsoft.com/en-us/office/dev/add-ins/testing/sideload-an-office-add-in-on-mac
 
 ---
 
