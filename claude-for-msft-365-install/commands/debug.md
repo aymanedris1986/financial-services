@@ -88,34 +88,58 @@ Admin Center → Integrated apps → your add-in → check the listed version.
 
 ### Force a client-side refresh
 
-The `wef` cache holds **every** add-in side by side, each file named
-`<addin-id>.manifest-*.xml`. Don't wipe the folder — that kills unrelated
-add-ins (other sideloads, dev/staging variants). Use the helper scripts,
-which delete only the files matching **your** add-in's `<Id>`:
+A stale **sideloaded** manifest is stored differently per platform:
+
+- **macOS** — a file `<addin-id>.manifest-*.xml` in each app's
+  `Documents/wef` folder, alongside every other add-in.
+- **Windows** — a **registry** value under
+  `HKCU:\SOFTWARE\Microsoft\Office\16.0\Wef\Developer` (there is no
+  per-add-in file to delete; clearing the `Wef` *folder* is a different,
+  blunter operation — see the caveat below).
+
+Use the helper scripts. They target **only** your add-in's `<Id>` and do
+direct `rm`/registry edits — they do **not** shell out to
+`office-addin-dev-settings` (its removal path has burned us on customer
+calls):
 
 - macOS: [`scripts/clear-addin-cache.sh`](../scripts/clear-addin-cache.sh)
 - Windows: [`scripts/clear-addin-cache.ps1`](../scripts/clear-addin-cache.ps1)
 
-Quit Excel/Word/PowerPoint first, then (macOS — PowerShell args are the
-same with `-Manifest`/`-Id`/`-Apply`):
+Quit Excel/Word/PowerPoint first. The scripts are **ID-first** — pass the
+add-in `<Id>` directly (handy when iterating across new/multiple IDs); the
+manifest path is an optional convenience that just reads `<Id>` for you.
 
 ```bash
-# 1. See what's cached — no deletion:
+# macOS — list everything, do nothing:
 ./scripts/clear-addin-cache.sh
 
-# 2. Dry-run for your add-in (reads <Id> from the manifest you deployed):
-./scripts/clear-addin-cache.sh ~/path/to/manifest.xml
-#    …or by ID if you don't have the manifest handy:
+# Dry-run by ID (preferred), or via the manifest:
 ./scripts/clear-addin-cache.sh --id <GUID>
+./scripts/clear-addin-cache.sh ~/path/to/manifest.xml
 
-# 3. Actually delete (only files prefixed with that add-in ID):
-./scripts/clear-addin-cache.sh ~/path/to/manifest.xml --apply
+# Actually remove (only this ID's files):
+./scripts/clear-addin-cache.sh --id <GUID> --apply
 ```
 
-Both scripts **dry-run by default** — nothing is removed without `--apply`
-(bash) / `-Apply` (PowerShell). No-args lists every add-in in `wef` so you
-can confirm the ID before touching anything. Other add-ins are never
-affected.
+```powershell
+# Windows — same flow, registry-scoped:
+.\scripts\clear-addin-cache.ps1                  # list, do nothing
+.\scripts\clear-addin-cache.ps1 -Id <GUID>       # dry-run
+.\scripts\clear-addin-cache.ps1 -Id <GUID> -Apply
+```
+
+Both **dry-run by default** — nothing is removed without `--apply` /
+`-Apply`. No-args lists every registered add-in so you confirm the ID
+first. Other add-ins are never affected.
+
+> **Centrally-deployed (Admin Center) staleness on Windows** is a
+> *different* cache: `%LOCALAPPDATA%\Microsoft\Office\16.0\Wef\<guid>\…`,
+> stored under opaque hashes, **not** by add-in ID. Microsoft's guidance
+> is to clear that folder's contents as a whole — *"deleting individual
+> manifest files can cause all add-ins to stop loading."* These scripts
+> deliberately do **not** touch it; if a centrally-deployed update is
+> stale, prefer waiting out the service TTL or redeploying with a fresh
+> `<Id>` (below) over hand-deleting that cache.
 
 Relaunch. If still stale, the service-side cache hasn't caught up. Wait, or
 use a fresh `<Id>` (below).
