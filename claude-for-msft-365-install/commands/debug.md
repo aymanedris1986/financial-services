@@ -185,75 +185,39 @@ For iterating on a manifest **without going through Admin Center deployment**
 manifest stays wherever it is on disk; you just tell Office where to find it.
 Pick the recipe for the customer's OS.
 
-### Windows (Wef Developer registry key)
+Use the helper scripts — they read the `<Id>` from the manifest and
+install it the right way per platform (macOS: a `<Id>.manifest.xml` file in
+each app's `Documents/wef`; Windows: a registry value under
+`HKCU:\SOFTWARE\Microsoft\Office\16.0\Wef\Developer` named by the `<Id>`).
+Both do direct file/registry writes — **not** `office-addin-dev-settings`.
 
-The standard manual sideload — a registry value under the `Wef\Developer`
-key whose name is the add-in ID and whose data is the manifest path.
-
-Give the customer this (they replace the path with their own):
-
-```powershell
-$manifestPath = (Resolve-Path "C:\path\to\manifest.xml").Path
-$addinId = ([xml](Get-Content $manifestPath)).OfficeApp.Id
-$wefKey  = "HKCU:\SOFTWARE\Microsoft\Office\16.0\Wef\Developer"
-New-Item -Path $wefKey -Force | Out-Null
-New-ItemProperty -Path $wefKey -Name $addinId -Value $manifestPath -PropertyType String -Force | Out-Null
-```
-
-What this does:
-1. Reads the add-in ID from the manifest's `<Id>` element (`OfficeApp.Id`).
-2. Creates a `String` value under
-   `HKCU:\SOFTWARE\Microsoft\Office\16.0\Wef\Developer` whose **name** is that
-   add-in ID and whose **data** is the full path to the manifest file.
-
-Then **fully close and reopen** Excel / Word / PowerPoint — check Task Manager
-for lingering processes first (a backgrounded app won't re-read the registry).
-The add-in appears on the **Home** tab, or under **Insert → My Add-ins →
-Shared Folder**.
-
-To stop sideloading, remove the value (or delete the manifest it points at):
-
-```powershell
-Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Office\16.0\Wef\Developer" -Name $addinId
-```
-
-### macOS (wef folder)
-
-No registry on macOS — instead drop the manifest into the per-app `wef`
-folder. The folder is per-app, so copy into each app you want to test.
-
-Give the customer this (they replace the path with their own):
+- macOS install: [`scripts/sideload-addin.sh`](../scripts/sideload-addin.sh)
+- Windows install: [`scripts/sideload-addin.ps1`](../scripts/sideload-addin.ps1)
+- Remove (either OS): `clear-addin-cache.{sh,ps1}` — see
+  [Force a client-side refresh](#force-a-client-side-refresh)
 
 ```bash
-MANIFEST="$HOME/path/to/manifest.xml"
-NAME="$(basename "$MANIFEST")"
-for app in Excel Word Powerpoint; do
-  dest="$HOME/Library/Containers/com.microsoft.$app/Data/Documents/wef"
-  mkdir -p "$dest"
-  cp "$MANIFEST" "$dest/$NAME"
-done
+# macOS — dry-run, then install:
+./scripts/sideload-addin.sh ~/path/to/manifest.xml
+./scripts/sideload-addin.sh ~/path/to/manifest.xml --apply
 ```
 
-(`Powerpoint` is the correct container name — lowercase second `p`. Outlook is
-`com.microsoft.Outlook`.)
-
-Then **fully quit and reopen** the app — `pkill -f "Microsoft Excel"` (etc.)
-to be sure no process lingers, since a backgrounded app won't rescan the
-folder. The add-in appears under **Insert → My Add-ins** (look under the
-**Developer Add-ins** / shared-folder group), then pin it.
-
-To stop sideloading, delete **only the specific manifest you copied** from
-each `wef` folder — do not `rm -rf` the `wef` folder itself (it can hold other
-sideloaded add-ins and Office state):
-
-```bash
-MANIFEST="$HOME/path/to/manifest.xml"   # same path you sideloaded
-NAME="$(basename "$MANIFEST")"
-for app in Excel Word Powerpoint; do
-  target="$HOME/Library/Containers/com.microsoft.$app/Data/Documents/wef/$NAME"
-  [ -f "$target" ] && rm -f "$target" && echo "removed $target"
-done
+```powershell
+# Windows — dry-run, then install:
+.\scripts\sideload-addin.ps1 C:\path\to\manifest.xml
+.\scripts\sideload-addin.ps1 C:\path\to\manifest.xml -Apply
 ```
+
+**Dry-run by default** — nothing is written without `--apply` / `-Apply`.
+The install names the entry by the add-in `<Id>`, so removal later is the
+exact inverse: `clear-addin-cache.{sh,ps1} --id <GUID> --apply` (the script
+prints the precise remove command on completion).
+
+Then **fully quit and reopen** Excel / Word / PowerPoint — check Task
+Manager (Windows) / `pkill -f "Microsoft Excel"` (macOS) first; a
+backgrounded app won't re-read the registry or rescan the folder. The
+add-in appears under **Insert → My Add-ins** (Windows also shows it on the
+**Home** tab / **Shared Folder** group); pin it.
 
 **Notes (both platforms):**
 - This is per-user and per-machine — it doesn't touch tenant deployment. It's
