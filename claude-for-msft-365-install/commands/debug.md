@@ -74,7 +74,7 @@ Two caches, two clocks:
 | Layer | Who holds it | TTL | How to clear |
 |---|---|---|---|
 | Service | M365 Admin Center → Exchange Online → client | Up to **72h** for updates (24h for fresh deploys) | Wait, or redeploy with a fresh `<Id>` |
-| Client | Office app's Wef folder on each machine | Until app restart, sometimes longer | Delete the folder |
+| Client | Office app's Wef folder on each machine | Until app restart, sometimes longer | Clear the cached manifests (see below) |
 
 Microsoft's own FAQ:
 > It can take up to 72 hours for add-in updates, changes from turn on or turn off to reflect for users.
@@ -90,17 +90,35 @@ Admin Center → Integrated apps → your add-in → check the listed version.
 
 Quit Excel/PowerPoint first, then:
 
+This clears the cached add-in manifests **inside** each app's container —
+it does not delete the container or any user documents. It removes the
+**contents** of the `wef` cache, not the folder itself, with guards so a
+missing path is skipped rather than erroring.
+
+> ⚠️ This also removes any **locally sideloaded** manifests in `wef` (see
+> [Sideload a manifest](#sideload-a-manifest-for-local-debugging)) — you'll
+> need to re-sideload after. If you only want to drop a single sideloaded
+> manifest, use the targeted removal in that section instead.
+
 **macOS:**
 ```bash
-rm -rf ~/Library/Containers/com.microsoft.Excel/Data/Library/Caches/
-rm -rf ~/Library/Containers/com.microsoft.Powerpoint/Data/Library/Caches/
-rm -rf ~/Library/Containers/com.microsoft.Excel/Data/Documents/wef
-rm -rf ~/Library/Containers/com.microsoft.Powerpoint/Data/Documents/wef
+for app in Excel Word Powerpoint; do
+  base="$HOME/Library/Containers/com.microsoft.$app/Data"
+  [ -d "$base/Library/Caches/Microsoft/Office/16.0/Wef" ] && \
+    rm -rf "$base/Library/Caches/Microsoft/Office/16.0/Wef"/* && \
+    echo "cleared $app Wef cache"
+  [ -d "$base/Documents/wef" ] && \
+    rm -rf "$base/Documents/wef"/* && \
+    echo "cleared $app wef manifests"
+done
 ```
 
-**Windows:**
+(If the `Library/Caches/.../Wef` path doesn't exist on a given machine, the
+guard skips it — older builds keep the cache only under `Documents/wef`.)
+
+**Windows:** delete the contents of the Wef folder, not the folder itself:
 ```cmd
-rd /s /q "%LOCALAPPDATA%\Microsoft\Office\16.0\Wef"
+del /q /s "%LOCALAPPDATA%\Microsoft\Office\16.0\Wef\*" 2>nul
 ```
 
 Relaunch. If still stale, the service-side cache hasn't caught up. Wait, or
