@@ -6,6 +6,7 @@
 // Example: node build-manifest.mjs office acme.xml gcp_project_id=acme gcp_region=us-east5
 
 import { writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 const MANIFESTS = {
   office: "https://pivot.claude.ai/manifest.xml", // Excel + Word + PowerPoint (TaskPaneApp)
@@ -67,6 +68,12 @@ const KEYS = {
     pattern: /\S/,
     hint: "scope(s) for your Entra-protected API, e.g. api://<your-app-guid>/.default — comma/space-separated list allowed, requires graph_client_id",
   },
+  graph_cloud: {
+    // Shape-checked here like every key; the real (throwing) validation is in
+    // validateGraphCloud below — this steers where OAuth tokens go.
+    pattern: /^(global|us-gov-high|us-gov-dod|china)$/,
+    hint: "Microsoft national cloud: global | us-gov-high | us-gov-dod | china — only for sovereign clouds; GCC-High and 21Vianet are also auto-detected at sign-in",
+  },
   allow_1p: {
     pattern: /^[01]$/,
     hint: "1 allows Claude.ai OAuth alongside 3P (default: locked when other keys present)",
@@ -79,22 +86,39 @@ const KEYS = {
 
 const NEEDS_ENTRA = ["aws_role_arn", "graph_client_id", "entra_scope"];
 
-async function main() {
-  const [host, out, ...pairs] = process.argv.slice(2);
-  const manifestUrl = process.env.MANIFEST_URL || MANIFESTS[host];
-  if (!manifestUrl || !out || pairs.length === 0) {
-    console.error("Usage: node build-manifest.mjs <office|outlook> <out.xml> key=value [key=value ...]");
-    console.error(`Keys: ${Object.keys(KEYS).join(", ")}`);
-    process.exit(1);
-  }
-  if (host === "outlook" && pairs.some((p) => p.startsWith("aws_"))) {
-    console.error("error: Amazon Bedrock (aws_role_arn/aws_region) is not currently supported for Outlook");
-    process.exit(1);
-  }
-  if (host !== "outlook" && pairs.some((p) => p.startsWith("graph_client_id="))) {
-    console.warn("note: graph_client_id only applies to Outlook; it has no effect in the office manifest");
-  }
+// --- Sovereign / national clouds ---------------------------------------------
+//
+// graph_cloud steers where the add-in sends the user's OAuth tokens, so
+// unlike other keys a bad value is a hard error, not a shape warning. The
+// config surface is an enum value, never a URL — each value maps to a fixed
+// Graph + Entra endpoint pair inside the add-in (src/auth/graphCloud.ts in
+// the add-in repo), so there is no admin-supplied hostname to validate.
+// These checks mirror what the add-in enforces at load so admins see the
+// failure here instead of as an opaque AADSTS error after deploying.
 
+const GRAPH_CLOUDS = ["global", "us-gov-high", "us-gov-dod", "china"];
+
+function validateGraphCloud(params) {
+  const cloud = params.get("graph_cloud");
+  if (!cloud) return;
+  if (!GRAPH_CLOUDS.includes(cloud)) {
+    throw new Error(`graph_cloud "${cloud}" is not a recognized value (expected one of: ${GRAPH_CLOUDS.join(", ")})`);
+  }
+  // A non-global cloud needs a BYO Entra app — Anthropic's multi-tenant app
+  // exists only in the commercial cloud, so the default client_id against a
+  // sovereign authority fails with an opaque AADSTS700016 at sign-in.
+  if (cloud !== "global" && !params.has("graph_client_id")) {
+    throw new Error(
+      `graph_cloud=${cloud} requires a graph_client_id registered in that cloud — ` +
+        `Anthropic's multi-tenant application exists only in the global cloud`,
+    );
+  }
+}
+
+/** Validate key=value pairs and return the URLSearchParams that get appended
+ *  to the manifest's taskpane URL. Throws on anything the add-in would reject
+ *  at load; shape mismatches only warn. */
+export function buildParams(pairs) {
   const params = new URLSearchParams();
   for (const p of pairs) {
     const eq = p.indexOf("=");
@@ -120,6 +144,29 @@ async function main() {
   if (params.has("entra_scope") && !params.has("graph_client_id")) {
     throw new Error("entra_scope requires graph_client_id (the scope is requested as your own Entra app, not the default)");
   }
+  validateGraphCloud(params);
+  return params;
+}
+
+async function main() {
+  const [host, out, ...pairs] = process.argv.slice(2);
+  const manifestUrl = process.env.MANIFEST_URL || MANIFESTS[host];
+  if (!manifestUrl || !out || pairs.length === 0) {
+    console.error("Usage: node build-manifest.mjs <office|outlook> <out.xml> key=value [key=value ...]");
+    console.error(`Keys: ${Object.keys(KEYS).join(", ")}`);
+    process.exit(1);
+  }
+  if (host === "outlook" && pairs.some((p) => p.startsWith("aws_"))) {
+    console.error("error: Amazon Bedrock (aws_role_arn/aws_region) is not currently supported for Outlook");
+    process.exit(1);
+  }
+  if (host !== "outlook" && pairs.some((p) => p.startsWith("graph_client_id="))) {
+    console.warn("note: graph_client_id only applies to Outlook; it has no effect in the office manifest");
+  }
+  // graph_cloud is relevant to both manifests: in Outlook it steers Graph +
+  // Entra sign-in; in office it steers the Entra SSO authority.
+
+  const params = buildParams(pairs);
 
   // URLSearchParams joins with `&`; XML attribute values need it escaped.
   const qs = params.toString().replaceAll("&", "&amp;");
@@ -140,7 +187,9 @@ async function main() {
   console.log(`Wrote ${out} (${host}, params: ${params})`);
 }
 
-main().catch((err) => {
-  console.error(err.message || err);
-  process.exit(1);
-});
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  main().catch((err) => {
+    console.error(err.message || err);
+    process.exit(1);
+  });
+}

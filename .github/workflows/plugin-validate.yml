@@ -20,6 +20,17 @@ env:
   CLAUDE_VERSION: 2.1.143
 
 jobs:
+  # build-manifest.mjs validates manifest URL params (incl. the sovereign-cloud
+  # graph_cloud enum) — keep its tests green alongside plugin linting.
+  manifest-script-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test claude-for-msft-365-install/scripts/build-manifest.test.mjs
+
   validate:
     runs-on: ubuntu-latest
     steps:
