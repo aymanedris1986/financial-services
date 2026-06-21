@@ -107,6 +107,18 @@
       "description": "Audits pre-generated LP statements before distribution"
     },
     {
+      "name": "hello-world",
+      "displayName": "Hello World",
+      "source": "./plugins/vertical-plugins/hello-world",
+      "description": "Teaching vertical: the expense-format skill used by the expense-noter hello-world agent"
+    },
+    {
+      "name": "expense-noter",
+      "displayName": "Expense Noter",
+      "source": "./plugins/agent-plugins/expense-noter",
+      "description": "Hello-world agent: receipt to one-line USD expense note"
+    },
+    {
       "name": "lseg",
       "displayName": "LSEG",
       "source": "./plugins/partner-built/lseg",

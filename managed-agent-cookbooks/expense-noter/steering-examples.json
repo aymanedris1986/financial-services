@@ -1,0 +1,4 @@
+[
+  { "event": "Note expense receipt RCP-001", "description": "Hello-world single receipt" },
+  { "event": "Note expense receipt RCP-002, approver required if over 1000", "description": "Triggers the handoff path" }
+]

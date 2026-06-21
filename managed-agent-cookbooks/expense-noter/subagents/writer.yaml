@@ -1,0 +1,22 @@
+# Writer - the ONLY worker with Write. Takes the formatted line, produces the file.
+# Never opens the receipt directly.
+
+name: expense-writer
+model: claude-opus-4-7
+
+system:
+  text: |
+    You are the ONLY worker with Write. Take the single formatted expense line you
+    are given and produce ./out/expense-<id>.md. Never open the receipt directly.
+
+tools:
+  - type: agent_toolset_20260401
+    default_config: { enabled: false }
+    configs:
+      - { name: read,  enabled: true }
+      - { name: write, enabled: true }
+
+mcp_servers: []
+skills:
+  - { path: ../../../plugins/agent-plugins/expense-noter/skills/expense-format }
+callable_agents: []

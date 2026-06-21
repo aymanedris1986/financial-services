@@ -1,0 +1,29 @@
+# Expense Noter - managed-agent cookbook (hello-world).
+# Deploy manifest for POST /v1/agents. Field names match the API; the deploy
+# script resolves system.file, skills.from_plugin, and callable_agents.manifest.
+
+name: expense-noter
+model: claude-opus-4-7
+
+system:
+  file: ../../plugins/agent-plugins/expense-noter/agents/expense-noter.md
+  append: "You are running headless. Produce files in ./out/; do not assume an open Office document."
+
+tools:
+  - type: agent_toolset_20260401
+    default_config: { enabled: false }
+    configs:
+      - { name: read, enabled: true }
+      - { name: grep, enabled: true }
+      - { name: glob, enabled: true }
+  - { type: mcp_toolset, mcp_server_name: fx, default_config: { enabled: true } }
+
+mcp_servers:
+  - { type: url, name: fx, url: "${FX_MCP_URL}" }   # the one connector
+
+skills:
+  - { from_plugin: ../../plugins/agent-plugins/expense-noter }
+
+callable_agents:
+  - { manifest: ./subagents/reader.yaml }
+  - { manifest: ./subagents/writer.yaml }   # only leaf with Write
