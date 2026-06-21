@@ -17,9 +17,11 @@ tools:
       - { name: grep, enabled: true }
       - { name: glob, enabled: true }
   - { type: mcp_toolset, mcp_server_name: fx, default_config: { enabled: true } }
+  - { type: mcp_toolset, mcp_server_name: expense-log, default_config: { enabled: true } }
 
 mcp_servers:
-  - { type: url, name: fx, url: "${FX_MCP_URL}" }   # the one connector
+  - { type: url, name: fx, url: "${FX_MCP_URL}" }
+  - { type: url, name: expense-log, url: "${EXPENSE_LOG_MCP_URL}" }
 
 skills:
   - { from_plugin: ../../plugins/agent-plugins/expense-noter }

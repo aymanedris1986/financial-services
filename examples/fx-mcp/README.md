@@ -12,9 +12,16 @@ python server.py
 
 Listens at `http://127.0.0.1:8000/mcp` by default. Override with `FX_MCP_HOST` / `FX_MCP_PORT`.
 
+Also run the online log MCP (separate process):
+
+```bash
+cd examples/expense-log-mcp && pip install -r requirements.txt && python server.py
+```
+
 ## Wire to Cowork
 
-The `expense-noter` plugin `.mcp.json` points at `http://127.0.0.1:8000/mcp`. Start this server before opening Cowork.
+The `expense-noter` plugin `.mcp.json` points at `http://127.0.0.1:8000/mcp` (FX) and
+`http://127.0.0.1:8001/mcp` (online log). Start both servers before opening Cowork.
 
 For remote Cowork sessions, tunnel the port (e.g. `ngrok http 8000`) and update
 `plugins/agent-plugins/expense-noter/.mcp.json` with the public `/mcp` URL.
