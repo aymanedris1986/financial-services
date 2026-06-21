@@ -1,6 +1,6 @@
 {
   "name": "expense-noter",
-  "version": "0.1.0",
-  "description": "Hello-world: receipt -> one-line USD expense note",
+  "version": "0.1.1",
+  "description": "Hello-world: receipt -> one-line USD expense note (includes fx MCP connector)",
   "author": { "name": "Code81" }
 }

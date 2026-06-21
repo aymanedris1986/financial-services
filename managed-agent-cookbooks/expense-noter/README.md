@@ -10,7 +10,7 @@ for `POST /v1/agents`.
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-export FX_MCP_URL=...            # read-only FX-rate MCP
+export FX_MCP_URL=http://127.0.0.1:8000/mcp   # run examples/fx-mcp/server.py first
 ../../scripts/deploy-managed-agent.sh expense-noter
 ```
 
