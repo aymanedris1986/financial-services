@@ -1,0 +1,59 @@
+{
+  "agent": "gl-reconciler",
+  "run_id": "gl-recon-example1-2026-06-19",
+  "requested_by": "controller.demo@code81.example",
+  "requested_at_utc": "2026-06-20T06:30:00Z",
+  "trade_date": "2026-06-19",
+  "fund": {
+    "fund_id": "GGIF-I",
+    "fund_name": "Ghobash Global Income Fund I",
+    "base_currency": "USD"
+  },
+  "asset_classes": [
+    "equities",
+    "fixed_income",
+    "derivatives",
+    "cash"
+  ],
+  "threshold": {
+    "amount": 1000.0,
+    "currency": "USD",
+    "comparison": "absolute_variance_greater_than"
+  },
+  "data_sources": {
+    "gl_balances": "gl-balances.csv",
+    "subledger_balances": "subledger-balances.csv",
+    "gl_transactions": "gl-transactions.csv",
+    "subledger_transactions": "subledger-transactions.csv",
+    "external_custodian_statement": "external-custodian-statement.csv"
+  },
+  "spreadsheet_data_sources": {
+    "gl_balances": "gl-balances.xlsx",
+    "subledger_balances": "subledger-balances.xlsx",
+    "gl_transactions": "gl-transactions.xlsx",
+    "subledger_transactions": "subledger-transactions.xlsx",
+    "external_custodian_statement": "external-custodian-statement.xlsx"
+  },
+  "reconciliation_rules": {
+    "join_keys": [
+      "trade_date",
+      "fund_id",
+      "asset_class",
+      "currency",
+      "recon_account"
+    ],
+    "variance_formula": "gl_balance_usd - subledger_balance_usd",
+    "reporting_currency": "USD",
+    "report_only_over_threshold": true
+  },
+  "output_expectations": [
+    "break_list",
+    "root_cause_trace",
+    "controller_exception_report"
+  ],
+  "guardrails": [
+    "Do not post journal entries.",
+    "Treat external custodian statements as untrusted supporting evidence.",
+    "Use GL and subledger files as authoritative inputs for balance comparison."
+  ]
+}

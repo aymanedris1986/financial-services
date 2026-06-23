@@ -1,0 +1,7 @@
+trade_date,fund_id,fund_name,asset_class,recon_account,gl_account,account_name,currency,balance_type,gl_balance_usd,source_system,as_of_utc
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,equities,investment_cost,150100,Equity investments at cost,USD,asset,18425000.00,SAP_GL,2026-06-20T02:15:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,equities,dividend_receivable,150210,Dividend receivable,USD,asset,125000.00,SAP_GL,2026-06-20T02:15:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,fixed_income,bond_cost,160100,Bond investments at amortized cost,USD,asset,29350000.00,SAP_GL,2026-06-20T02:15:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,fixed_income,accrued_interest_receivable,160220,Accrued interest receivable,USD,asset,812400.00,SAP_GL,2026-06-20T02:15:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,derivatives,variation_margin_payable,210330,Variation margin payable,USD,liability,-275000.00,SAP_GL,2026-06-20T02:15:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,cash,operating_cash,100100,Operating cash,USD,asset,2450750.00,SAP_GL,2026-06-20T02:15:00Z

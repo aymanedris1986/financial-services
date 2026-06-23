@@ -1,0 +1,12 @@
+trade_date,posting_date,fund_id,asset_class,recon_account,gl_account,transaction_id,instrument_id,instrument_name,description,currency,debit_usd,credit_usd,net_amount_usd,source_system
+2026-06-19,2026-06-19,GGIF-I,equities,investment_cost,150100,GL-EQ-001,AAPL,Apple Inc,Daily equity position rollforward,USD,8400000.00,0.00,8400000.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,equities,investment_cost,150100,GL-EQ-002,MSFT,Microsoft Corp,Daily equity position rollforward,USD,10025000.00,0.00,10025000.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,equities,dividend_receivable,150210,GL-EQ-DIV-001,MSFT,Microsoft Corp,Dividend receivable opening balance,USD,123500.00,0.00,123500.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,equities,dividend_receivable,150210,GL-EQ-DIV-002,AAPL,Apple Inc,Dividend accrual posted in GL after subledger cutoff,USD,1500.00,0.00,1500.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,fixed_income,bond_cost,160100,GL-FI-001,US91282CKQ32,US Treasury 4.125 2032,Bond position amortized cost,USD,17850000.00,0.00,17850000.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,fixed_income,bond_cost,160100,GL-FI-002,XS2419368592,Emirates NBD 5.125 2029,Bond position amortized cost,USD,11500000.00,0.00,11500000.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,fixed_income,accrued_interest_receivable,160220,GL-FI-AI-001,US91282CKQ32,US Treasury 4.125 2032,Daily coupon accrual,USD,462400.00,0.00,462400.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,fixed_income,accrued_interest_receivable,160220,GL-FI-AI-002,XS2419368592,Emirates NBD 5.125 2029,Daily coupon accrual including late rate update,USD,350000.00,0.00,350000.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,derivatives,variation_margin_payable,210330,GL-DRV-VM-001,ESU6,S&P 500 Sep 2026 Future,Variation margin payable opening balance,USD,0.00,272500.00,-272500.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,derivatives,variation_margin_payable,210330,GL-DRV-VM-002,ESU6,S&P 500 Sep 2026 Future,Late margin call posted to payable,USD,0.00,2500.00,-2500.00,SAP_GL
+2026-06-19,2026-06-19,GGIF-I,cash,operating_cash,100100,GL-CASH-001,USD-CASH,USD operating cash,Bank sweep and cash movement total,USD,2450750.00,0.00,2450750.00,SAP_GL

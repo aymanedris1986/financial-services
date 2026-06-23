@@ -1,0 +1,7 @@
+trade_date,fund_id,fund_name,asset_class,recon_account,subledger_account,account_name,currency,balance_type,subledger_balance_usd,source_system,as_of_utc
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,equities,investment_cost,EQ-COST,Equity position cost,USD,asset,18425000.00,POSITIONS_SL,2026-06-20T02:20:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,equities,dividend_receivable,EQ-DIV-REC,Dividend receivable,USD,asset,123500.00,POSITIONS_SL,2026-06-20T02:20:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,fixed_income,bond_cost,FI-COST,Bond position amortized cost,USD,asset,29350000.00,POSITIONS_SL,2026-06-20T02:20:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,fixed_income,accrued_interest_receivable,FI-AI-REC,Accrued interest receivable,USD,asset,808900.00,POSITIONS_SL,2026-06-20T02:20:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,derivatives,variation_margin_payable,DRV-VM-PAY,Variation margin payable,USD,liability,-272500.00,DERIVATIVES_SL,2026-06-20T02:20:00Z
+2026-06-19,GGIF-I,Ghobash Global Income Fund I,cash,operating_cash,CASH-OPER,Operating cash,USD,asset,2450500.00,TREASURY_SL,2026-06-20T02:20:00Z

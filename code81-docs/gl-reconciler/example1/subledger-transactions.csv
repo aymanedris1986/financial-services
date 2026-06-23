@@ -1,0 +1,12 @@
+trade_date,effective_date,fund_id,asset_class,recon_account,subledger_account,transaction_id,instrument_id,instrument_name,description,currency,amount_usd,source_system
+2026-06-19,2026-06-19,GGIF-I,equities,investment_cost,EQ-COST,SL-EQ-001,AAPL,Apple Inc,Equity position cost rollforward,USD,8400000.00,POSITIONS_SL
+2026-06-19,2026-06-19,GGIF-I,equities,investment_cost,EQ-COST,SL-EQ-002,MSFT,Microsoft Corp,Equity position cost rollforward,USD,10025000.00,POSITIONS_SL
+2026-06-19,2026-06-19,GGIF-I,equities,dividend_receivable,EQ-DIV-REC,SL-EQ-DIV-001,MSFT,Microsoft Corp,Dividend receivable captured before cutoff,USD,123500.00,POSITIONS_SL
+2026-06-19,2026-06-20,GGIF-I,equities,dividend_receivable,EQ-DIV-REC,SL-EQ-DIV-002,AAPL,Apple Inc,Dividend receivable loaded after reconciliation cutoff,USD,1500.00,POSITIONS_SL
+2026-06-19,2026-06-19,GGIF-I,fixed_income,bond_cost,FI-COST,SL-FI-001,US91282CKQ32,US Treasury 4.125 2032,Bond position amortized cost,USD,17850000.00,POSITIONS_SL
+2026-06-19,2026-06-19,GGIF-I,fixed_income,bond_cost,FI-COST,SL-FI-002,XS2419368592,Emirates NBD 5.125 2029,Bond position amortized cost,USD,11500000.00,POSITIONS_SL
+2026-06-19,2026-06-19,GGIF-I,fixed_income,accrued_interest_receivable,FI-AI-REC,SL-FI-AI-001,US91282CKQ32,US Treasury 4.125 2032,Daily coupon accrual,USD,462400.00,POSITIONS_SL
+2026-06-19,2026-06-19,GGIF-I,fixed_income,accrued_interest_receivable,FI-AI-REC,SL-FI-AI-002,XS2419368592,Emirates NBD 5.125 2029,Daily coupon accrual before rate update,USD,346500.00,POSITIONS_SL
+2026-06-19,2026-06-19,GGIF-I,derivatives,variation_margin_payable,DRV-VM-PAY,SL-DRV-VM-001,ESU6,S&P 500 Sep 2026 Future,Variation margin payable opening balance,USD,-272500.00,DERIVATIVES_SL
+2026-06-19,2026-06-19,GGIF-I,derivatives,variation_margin_suspense,DRV-VM-SUSP,SL-DRV-VM-002,ESU6,S&P 500 Sep 2026 Future,Late margin call routed to suspense pending classification,USD,-2500.00,DERIVATIVES_SL
+2026-06-19,2026-06-19,GGIF-I,cash,operating_cash,CASH-OPER,SL-CASH-001,USD-CASH,USD operating cash,Treasury cash rollforward total,USD,2450500.00,TREASURY_SL

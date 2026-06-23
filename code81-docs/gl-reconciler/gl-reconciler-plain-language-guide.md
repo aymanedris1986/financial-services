@@ -109,6 +109,12 @@ The GL Reconciler is the rulebook for an AI "accounting controller" that every d
 
 ---
 
+## 9. Example input package
+
+For a complete sample run, see `example1/`. It includes the run request, GL balances, subledger balances, transaction-level evidence, an outside custodian statement, and a plain-language explanation of how each file is used by the agent.
+
+---
+
 ## Glossary
 
 | Term | Plain meaning |
@@ -125,3 +131,5 @@ The GL Reconciler is the rulebook for an AI "accounting controller" that every d
 | **Orchestrator** | The main AI that coordinates helpers but does not write files. |
 | **Reader / critic / resolver** | Helper AIs that read untrusted docs, re-verify breaks, and write the final report, respectively. |
 | **MCP** | A secure connector that lets the agent read data from a firm system (read-only here). |
+
+<!-- CHECKPOINT id="ckpt_mqqiks3x_y1cuah" time="2026-06-23T10:41:14.061Z" note="auto" fixes=0 questions=0 highlights=0 sections="" -->

@@ -1,0 +1,7 @@
+statement_date,custodian,fund_id,asset_class,instrument_id,instrument_name,statement_line_id,line_description,currency,amount_usd,statement_received_utc,trust_level
+2026-06-19,Northbank Custody,GGIF-I,equities,AAPL,Apple Inc,CUST-EQ-DIV-001,Dividend accrual visible on custodian statement,USD,1500.00,2026-06-20T05:50:00Z,untrusted_supporting_evidence
+2026-06-19,Northbank Custody,GGIF-I,equities,MSFT,Microsoft Corp,CUST-EQ-DIV-002,Dividend receivable captured before cutoff,USD,123500.00,2026-06-20T05:50:00Z,untrusted_supporting_evidence
+2026-06-19,Northbank Custody,GGIF-I,fixed_income,US91282CKQ32,US Treasury 4.125 2032,CUST-FI-AI-001,Accrued interest receivable,USD,462400.00,2026-06-20T05:50:00Z,untrusted_supporting_evidence
+2026-06-19,Northbank Custody,GGIF-I,fixed_income,XS2419368592,Emirates NBD 5.125 2029,CUST-FI-AI-002,Accrued interest receivable after rate update,USD,350000.00,2026-06-20T05:50:00Z,untrusted_supporting_evidence
+2026-06-19,Northbank Custody,GGIF-I,derivatives,ESU6,S&P 500 Sep 2026 Future,CUST-DRV-VM-001,Variation margin payable including late margin call,USD,-275000.00,2026-06-20T05:50:00Z,untrusted_supporting_evidence
+2026-06-19,Northbank Custody,GGIF-I,cash,USD-CASH,USD operating cash,CUST-CASH-001,Cash balance per custodian statement,USD,2450750.00,2026-06-20T05:50:00Z,untrusted_supporting_evidence
